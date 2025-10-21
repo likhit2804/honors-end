@@ -1,0 +1,29 @@
+# Configuration File
+
+seed: 42
+device: "cuda"
+
+data_paths:
+  gene_expr: "data/omics/gene_expr.csv"
+  mirna_expr: "data/omics/mirna_expr.csv"
+  clinical: "data/omics/clinical.csv"
+  pathway_db: "data/pathways/pathway_db.csv"
+
+model_params:
+  hypergat:
+    in_channels: 128
+    out_channels: 64
+    heads: 4
+  hgat:
+    in_channels: 64
+    out_channels: 32
+    heads: 2
+  mlp:
+    hidden_dim: 128
+    dropout: 0.3
+
+train_params:
+  batch_size: 32
+  lr: 1e-3
+  epochs: 50
+  optimizer: "adam"
