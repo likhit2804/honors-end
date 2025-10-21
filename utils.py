@@ -10,6 +10,7 @@ def set_seed(seed=42):
     torch.cuda.manual_seed_all(seed)
 
 def build_patient_graph(features, k=5):
+    """Builds patient graph from real features (e.g., gene expr)."""
     sim = cosine_similarity(features)
     edges = []
     for i in range(sim.shape[0]):
@@ -18,4 +19,25 @@ def build_patient_graph(features, k=5):
             if i != j:
                 edges.append((i, j))
     edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
+    return edge_index
+
+def build_synthetic_patient_graph(num_patients, k=5):
+    """
+    Generates a synthetic random graph (PSN) instead of building from features.
+    Each node connects to 'k' other random nodes.
+    """
+    edges = []
+    for i in range(num_patients):
+        # Select k random neighbors (excluding self)
+        possible_neighbors = [j for j in range(num_patients) if j != i]
+        if len(possible_neighbors) <= k:
+            neighbors = possible_neighbors
+        else:
+            neighbors = random.sample(possible_neighbors, k)
+        
+        for j in neighbors:
+            edges.append((i, j))
+            
+    edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
+    print(f"Built synthetic patient graph with {num_patients} nodes: {edge_index.shape}")
     return edge_index

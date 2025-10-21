@@ -4,9 +4,12 @@ seed: 42
 device: "cuda"
 
 data_paths:
-  gene_expr: "data/omics/gene_expr.csv"
-  mirna_expr: "data/omics/mirna_expr.csv"
-  clinical: "data/omics/clinical.csv"
+  # Paths to your REAL data files
+  gene_expr: "data/omics/filtered_mirna.csv"
+  somatic_expr: "data/omics/filtered_somatic.csv"
+  cnv_expr: "data/omics/filtered_cnv.csv"
+  
+  # Path for pathway graph
   pathway_db: "data/pathways/pathway_db.csv"
 
 model_params:
