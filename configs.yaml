@@ -9,8 +9,7 @@ data_paths:
   somatic_expr: "data/omics/filtered_somatic.csv"
   cnv_expr: "data/omics/filtered_cnv.csv"
   clinical_data: "data/omics/clinical_data_transposed_filtered.csv"
-
-
+  pathway_path: "data/omics/pathways.gmt"
   
 
 

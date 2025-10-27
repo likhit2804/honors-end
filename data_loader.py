@@ -17,7 +17,7 @@ def load_omics( somatic_path, cnv_path, mirna_path, clinical_path):
     cnv_df = pd.read_csv(cnv_path, index_col=0)
     # --- NEW ---
     mirna_df = pd.read_csv(mirna_path, index_col=0)
-    clinical_df = pd.read_csv(clinical_path, index_col=0)
+    clinical_df = pd.read_csv(clinical_path,index_col=0)
 
 
 
@@ -54,8 +54,9 @@ def load_omics( somatic_path, cnv_path, mirna_path, clinical_path):
     
     return  somatic, cnv, mirna, clinical
 
+from gseapy.parser import read_gmt
 def build_pathway_graph(pathway_path):
-    df = pd.read_csv(pathway_path)
+    df = read_gmt(pathway_path)
     hyperedges = defaultdict(list)
     for _, row in df.iterrows():
         hyperedges[row["Pathway_ID"]].append(row["Entity_ID"])
