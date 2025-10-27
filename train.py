@@ -15,23 +15,26 @@ def train():
     cfg = yaml.safe_load(open("configs.yaml"))
     set_seed(cfg["seed"])
 
+    # In train.py (lines 20-30)
+
     # --- Updated Data Loading ---
+    # These paths are now read from the updated configs.yaml
     data_paths = cfg["data_paths"]
     
-    # --- CHANGED ---
-    # Load all 5 real omics data types
-    # (Assumes configs.yaml has 'mirna_expr' and 'clinical_data' paths)
-    somatic, cnv, mirna, clinical = load_omics(
-        
+    # Load all 4 real data types
+    mirna, somatic, cnv, clinical = load_omics(
+        mirna_path=data_paths["mirna_expr"],
         somatic_path=data_paths["somatic_expr"],
         cnv_path=data_paths["cnv_expr"],
-        mirna_path=data_paths["mirna_expr"],       # --- NEW ---
-        clinical_path=data_paths["clinical_data"]  # --- NEW ---
+        clinical_path=data_paths["clinical_data"]
     )
     
-    num_patients = somatic.size(0)
+    # Get patient count from your real data
+    num_patients = mirna.size(0)
     
+    # Build pathway graph
     edge_index_pathway, entity_to_idx = build_pathway_graph(data_paths["pathway_db"])
+    # --- End Updated Data Loading ---
     # --- End Updated Data Loading ---
 
     # Initialize models
@@ -66,7 +69,7 @@ def train():
         list(hgat.parameters()) + 
         list(mlp.parameters()) +
         list(feature_projector.parameters()), # --- NEW: Add projector to optimizer
-        lr=cfg["train_params"]["lr"]
+        lr=float(cfg["train_params"]["lr"])
     )
 
     # --- Data fusion (USING REAL PSN) ---

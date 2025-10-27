@@ -5,11 +5,11 @@ device: "cuda"
 
 data_paths:
   # Paths to your REAL data files
-  mirna_expr: "data/omics/mirna.csv"
+  mirna_expr: "data/omics/mirna_cleaned.csv"
   somatic_expr: "data/omics/filtered_somatic.csv"
   cnv_expr: "data/omics/filtered_cnv.csv"
-  clinical_data: "data/omics/clinical_data_transposed_filtered.csv"
-  pathway_path: "data/omics/pathways.gmt"
+  clinical_data: "data/omics/cleaned_clinical.csv"
+  pathway_db: "data/omics/pathway_long.csv"
   
 
 
@@ -31,3 +31,4 @@ train_params:
   lr: 1e-3
   epochs: 50
   optimizer: "adam"
+  psn_k: 5

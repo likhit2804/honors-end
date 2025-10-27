@@ -3,16 +3,16 @@ import numpy as np
 
 # Define the input and output filenames
 input_file = 'data/omics/mirna.csv'
-output_file = 'data/omics/mirna_cleaned_for_model.csv'
+output_file = 'data/omics/mirna_cleaned.csv'
 
 try:
     print(f"Loading '{input_file}'...")
     # Load the data.
     # Features (miRNA IDs) are in the first column (index_col=0)
     # Samples (TCGA IDs) are in the first row (header=0)
-    df = pd.read_csv(input_file, index_col=0, header=0)
+    df = pd.read_csv(input_file,header=0)
     
-    print(f"Original shape (features, samples): {df.shape}")
+    print(df.head())
 
     # 1. Transpose the data
     # We want samples as rows and features as columns for modeling.
@@ -44,7 +44,7 @@ try:
         
     missing_after = df_transposed.isnull().sum().sum()
     print(f"Total missing values after imputation: {missing_after}")
-
+    df_transposed=df_transposed.T
     # 4. Final Check and Save
     df_transposed.to_csv(output_file)
     print(f"\n*** Successfully cleaned and saved data to '{output_file}' ***")

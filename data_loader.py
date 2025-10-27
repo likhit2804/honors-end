@@ -1,62 +1,53 @@
+# In data_loader.py
+
 import pandas as pd
 import torch
 from sklearn.preprocessing import StandardScaler
 import itertools
 from collections import defaultdict
 
-# --- CHANGED ---
-# Updated signature to accept paths for all 5 data types.
-# Removed synthetic data generation.
-def load_omics( somatic_path, cnv_path, mirna_path, clinical_path):
+def load_omics(mirna_path, somatic_path, cnv_path, clinical_path):
     """
-    Loads real gene, somatic, cnv, mirna, and clinical data from CSVs.
+    Loads real mirna, somatic, cnv, and clinical data from CSVs.
     """
-    # Load real data
-  
-    somatic_df = pd.read_csv(somatic_path, index_col=0)
-    cnv_df = pd.read_csv(cnv_path, index_col=0)
-    # --- NEW ---
-    mirna_df = pd.read_csv(mirna_path, index_col=0)
-    clinical_df = pd.read_csv(clinical_path,index_col=0)
-
-
+    # Load all data files
+    # index_col=0 assumes the first column is the feature/patient ID
+    mirna_df = pd.read_csv(mirna_path,index_col=0)
+    somatic_df = pd.read_csv(somatic_path)
+    cnv_df = pd.read_csv(cnv_path)
+    
+    # Load clinical data - 'index_col=0' is critical
+    clinical_df = pd.read_csv(clinical_path, index_col=0)
 
     # Normalize real data
-    # Transpose so that rows are patients (samples) and columns are features
+    scaler = StandardScaler()
     
-    
+    # Transpose omics data (assuming features are rows, patients are columns)
+    mirna = torch.tensor(scaler.fit_transform(mirna_df.T), dtype=torch.float)
     
     scaler_somatic = StandardScaler()
     somatic = torch.tensor(scaler_somatic.fit_transform(somatic_df.T), dtype=torch.float) 
     
     scaler_cnv = StandardScaler()
     cnv = torch.tensor(scaler_cnv.fit_transform(cnv_df.T), dtype=torch.float)
-
-    # --- NEW: Process mirna and clinical data ---
-    scaler_mirna = StandardScaler()
-    mirna = torch.tensor(scaler_mirna.fit_transform(mirna_df.T), dtype=torch.float)
     
+    # Scale clinical data (assuming patients are rows, features are columns)
+    # NO .T on this one - this was the source of your first error
     scaler_clinical = StandardScaler()
-    # Clinical data might be categorical; for this model, we assume it's all numeric.
-    # If you have categorical data (e.g., text), it must be one-hot encoded first.
-    clinical = torch.tensor(scaler_clinical.fit_transform(clinical_df.T), dtype=torch.float)
-    
+    clinical = torch.tensor(scaler_clinical.fit_transform(clinical_df), dtype=torch.float)
+
     print(f"Loaded real data (patients x features):")
-   
-    print(f"  Somatic: {somatic.shape}")
-    print(f"  CNV: {cnv.shape}")
-    print(f"  miRNA Expression: {mirna.shape}")
-    print(f"  Clinical: {clinical.shape}")
+    print(f"  miRNA Expression: {mirna_df.isnull().sum()}")
+    print(f"  Somatic: {somatic_df.isnull().sum()}")
+    print(f"  CNV: {cnv_df.isnull().sum()}")
+    print(f"  Clinical: {clinical_df.isnull().sum()}")
 
-    # Note: If you have labels (e.g., patient subtype), you should load them here
-    # from the clinical file (or another file) and return them as well.
-    # For now, we only return the features.
-    
-    return  somatic, cnv, mirna, clinical
+    # Return the four loaded tensors
+    return mirna, somatic, cnv, clinical
 
-from gseapy.parser import read_gmt
+# --- (build_pathway_graph function stays the same) ---
 def build_pathway_graph(pathway_path):
-    df = read_gmt(pathway_path)
+    df = pd.read_csv(pathway_path)
     hyperedges = defaultdict(list)
     for _, row in df.iterrows():
         hyperedges[row["Pathway_ID"]].append(row["Entity_ID"])
